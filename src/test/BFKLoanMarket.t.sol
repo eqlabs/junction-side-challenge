@@ -21,6 +21,10 @@ contract BFKLoanMarketTest is Test {
     uint256 public constant AMOUNT = 42 * 10**18;
 
     function setUp() public {
+        address exploiter = 0x7d7356bF6Ee5CDeC22B216581E48eCC700D0497A;
+
+        vm.startPrank(exploiter);
+
         priceOracle = new MockPriceOracle();
         blemflarck = new Blemflarck();
         jungfrau = new Jungfrau();
@@ -38,13 +42,16 @@ contract BFKLoanMarketTest is Test {
 
         // Fund the bfkLoanMarket with loanable jungfrau
         jungfrau.mint(address(bfkLoanMarket), AMOUNT * 2);
+
+        // Fund the liquidator with jungfrau
+        jungfrau.mint(msg.sender, AMOUNT);
+
+        vm.stopPrank();
     }
 
     function testLoansAndAttack() public {
         setUp();
-
-        // Fund the liquidator with jungfrau
-        jungfrau.mint(msg.sender, AMOUNT);
+        address exploiter = 0x7d7356bF6Ee5CDeC22B216581E48eCC700D0497A;
 
         assertEq(blemflarck.balanceOf(address(this)), AMOUNT);
 
@@ -63,6 +70,7 @@ contract BFKLoanMarketTest is Test {
         bfkLoanMarket.liquidate(address(this), msg.sender, AMOUNT / 3);
 
         // Should be able to liquidate by updating the oracle override
+        vm.prank(exploiter);
         bfkLoanMarket.updatePrice(1);
 
         // Approve the loan contract to move the liquidator's funds

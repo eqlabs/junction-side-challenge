@@ -59,6 +59,10 @@ contract BFKLoanMarket is Owned(msg.sender) {
 
     function _loan(address loanTaker, uint256 collateral) internal {
         require(collateral > 0, "Can't loan with 0 collateral!");
+        require(
+            jungfrau.balanceOf(address(this)) > 0,
+            "No Jungfrau to loan =("
+        );
         uint256 latestPrice = latestAnswer();
         loans[loanTaker] = Loan({
             bfkAmount: collateral,
@@ -86,7 +90,6 @@ contract BFKLoanMarket is Owned(msg.sender) {
         );
         loans[loanTaker] = Loan({bfkAmount: 0, openingPrice: 0});
         jungfrau.transferFrom(liquidator, address(this), repayment);
-        console.log("Tanne asti ei edes paasta");
 
         uint256 liquidatorReward = (repayment / price) * 10**8;
         if (blemflarck.balanceOf(address(this)) < liquidatorReward) {
