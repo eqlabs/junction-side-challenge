@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.10;
 
-import "../interfaces/IPriceOracle.sol";
+import "../../interfaces/IPriceOracle.sol";
 
 contract MockPriceOracle is IPriceOracle {
     struct MockRound {

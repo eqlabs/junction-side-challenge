@@ -4,6 +4,7 @@ pragma solidity ^0.8.10;
 import "@solmate/auth/Owned.sol";
 import "./interfaces/IPriceOracle.sol";
 import "@solmate/tokens/ERC20.sol";
+import "forge-std/console.sol";
 
 /**
  * STEAL THEIR BLEMFLARCK! DEATH TO EIGER!
@@ -44,9 +45,10 @@ contract BFKLoanMarket is Owned(msg.sender) {
     function latestAnswer() internal view returns (uint256) {
         (, int256 answer, , uint256 timestamp, ) = oracle.latestRoundData();
         uint256 returnedAnswer = uint256(answer);
+
         if (
-            priceOverrides[priceOverrides.length - 1].timestamp >
-            timestamp - 120
+            priceOverrides.length > 0 &&
+            priceOverrides[priceOverrides.length - 1].timestamp >= timestamp
         ) {
             returnedAnswer = uint256(
                 priceOverrides[priceOverrides.length - 1].price
@@ -56,6 +58,7 @@ contract BFKLoanMarket is Owned(msg.sender) {
     }
 
     function _loan(address loanTaker, uint256 collateral) internal {
+        require(collateral > 0, "Can't loan with 0 collateral!");
         uint256 latestPrice = latestAnswer();
         loans[loanTaker] = Loan({
             bfkAmount: collateral,
@@ -83,13 +86,26 @@ contract BFKLoanMarket is Owned(msg.sender) {
         );
         loans[loanTaker] = Loan({bfkAmount: 0, openingPrice: 0});
         jungfrau.transferFrom(liquidator, address(this), repayment);
+        console.log("Tanne asti ei edes paasta");
 
         uint256 liquidatorReward = (repayment / price) * 10**8;
+        if (blemflarck.balanceOf(address(this)) < liquidatorReward) {
+            liquidatorReward = blemflarck.balanceOf(address(this));
+        }
         blemflarck.transfer(liquidator, liquidatorReward);
     }
 
     function loan(uint256 collateral) public {
         _loan(msg.sender, collateral);
+    }
+
+    function liquidate(
+        address loanTaker,
+        address liquidator,
+        uint256 repayment
+    ) public {
+        uint256 price = latestAnswer();
+        _liquidate(loanTaker, liquidator, repayment, price);
     }
 
     function updatePrice(int256 price) public onlyOwner {
