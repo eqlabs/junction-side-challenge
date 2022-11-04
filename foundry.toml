@@ -9,3 +9,6 @@ optimizer_runs = 20000
 # Remappings in remappings.txt
 
 # See more config options https://github.com/gakonst/foundry/tree/master/config
+
+[rpc_endpoints]
+mumbai = "${MUMBAI_RPC_URL}"

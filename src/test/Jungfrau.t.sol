@@ -15,8 +15,8 @@ contract JungfrauTest is Test {
     }
 
     function testOwnerCanMint() public {
-        jungfrau.mint(msg.sender, AMOUNT);
-        uint256 balance = jungfrau.balanceOf(msg.sender);
+        jungfrau.mint(address(this), AMOUNT);
+        uint256 balance = jungfrau.balanceOf(address(this));
         assertEq(balance, AMOUNT);
     }
 }

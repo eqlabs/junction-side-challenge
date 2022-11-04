@@ -15,8 +15,8 @@ contract BlemflarckTest is Test {
     }
 
     function testOwnerCanMint() public {
-        blemflarck.mint(msg.sender, AMOUNT);
-        uint256 balance = blemflarck.balanceOf(msg.sender);
+        blemflarck.mint(address(this), AMOUNT);
+        uint256 balance = blemflarck.balanceOf(address(this));
         assertEq(balance, AMOUNT);
     }
 }

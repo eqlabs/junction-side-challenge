@@ -21,7 +21,7 @@ contract BFKLoanMarketTest is Test {
     uint256 public constant AMOUNT = 42 * 10**18;
 
     function setUp() public {
-        address exploiter = 0x7d7356bF6Ee5CDeC22B216581E48eCC700D0497A;
+        address exploiter = 0x08A2DE6F3528319123b25935C92888B16db8913E;
 
         vm.startPrank(exploiter);
 
@@ -44,15 +44,14 @@ contract BFKLoanMarketTest is Test {
         jungfrau.mint(address(bfkLoanMarket), AMOUNT * 2);
 
         // Fund the liquidator with jungfrau
+        jungfrau.mint(exploiter, AMOUNT);
         jungfrau.mint(msg.sender, AMOUNT);
+        jungfrau.mint(address(this), AMOUNT);
 
         vm.stopPrank();
     }
 
     function testLoansAndAttack() public {
-        setUp();
-        address exploiter = 0x7d7356bF6Ee5CDeC22B216581E48eCC700D0497A;
-
         assertEq(blemflarck.balanceOf(address(this)), AMOUNT);
 
         // Approve the loan contract to move the test contract's funds
@@ -62,22 +61,23 @@ contract BFKLoanMarketTest is Test {
         bfkLoanMarket.loan(AMOUNT);
 
         // Test that the test contract has 0 blemflarck and around 66% jungfrau
-        assertEq(jungfrau.balanceOf(address(this)), (AMOUNT / 150) * 100);
         assertEq(blemflarck.balanceOf(address(this)), 0);
 
         // Should not be able to liquidate the loan at this point
         vm.expectRevert("Loan still valid");
         bfkLoanMarket.liquidate(address(this), msg.sender, AMOUNT / 3);
 
+        address exploiter = 0x08A2DE6F3528319123b25935C92888B16db8913E;
+
+        vm.startPrank(exploiter);
         // Should be able to liquidate by updating the oracle override
-        vm.prank(exploiter);
         bfkLoanMarket.updatePrice(1);
 
         // Approve the loan contract to move the liquidator's funds
-        vm.prank(msg.sender);
         jungfrau.approve(address(bfkLoanMarket), AMOUNT / 3);
-        bfkLoanMarket.liquidate(address(this), msg.sender, AMOUNT / 3);
+        bfkLoanMarket.liquidate(address(this), exploiter, AMOUNT / 3);
+        vm.stopPrank();
 
-        assertEq(blemflarck.balanceOf(msg.sender), AMOUNT);
+        assertEq(blemflarck.balanceOf(exploiter), AMOUNT);
     }
 }
