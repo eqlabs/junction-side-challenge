@@ -35,7 +35,7 @@ contract BFKLoanMarketTest is Test {
             address(priceOracle)
         );
 
-        priceOracle.setPrice(1 * 10**8);
+        priceOracle.setPrice(99547000);
 
         // Fund this test contract with blemflarck as collateral
         blemflarck.mint(address(this), AMOUNT);
