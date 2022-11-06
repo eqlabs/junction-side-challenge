@@ -4,7 +4,6 @@ pragma solidity ^0.8.10;
 import "@solmate/auth/Owned.sol";
 import "./interfaces/IPriceOracle.sol";
 import "@solmate/tokens/ERC20.sol";
-import "forge-std/console.sol";
 
 /**
  * STEAL THEIR BLEMFLARCK! DEATH TO EIGER!
@@ -38,7 +37,6 @@ contract BFKLoanMarket is Owned(msg.sender) {
     ) {
         blemflarck = ERC20(bfk);
         jungfrau = ERC20(jfr);
-        // 0x7d7356bF6Ee5CDeC22B216581E48eCC700D0497A EUR/USD
         oracle = IPriceOracle(priceOracleAddress);
     }
 
